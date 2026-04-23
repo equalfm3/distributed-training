@@ -1,0 +1,38 @@
+# FSDP Training Configuration
+# Usage: torchrun --nproc_per_node=N -m src.fsdp.trainer --config configs/fsdp_config.yaml
+
+model:
+  vocab_size: 32000
+  d_model: 512
+  n_heads: 8
+  n_layers: 6
+  seq_len: 256
+
+training:
+  batch_size: 8
+  lr: 3.0e-4
+  weight_decay: 0.01
+  max_steps: 1000
+  grad_clip: 1.0
+  log_interval: 10
+  warmup_steps: 100
+
+fsdp:
+  sharding_strategy: full_shard    # full_shard | shard_grad_op | no_shard | hybrid_shard
+  mixed_precision: bf16            # fp32 | fp16 | bf16
+  activation_checkpointing: true
+  cpu_offload: false
+  forward_prefetch: true
+  limit_all_gathers: true
+  min_num_params: 100000
+
+checkpoint:
+  save_dir: ./checkpoints/fsdp
+  strategy: full_state_dict        # full_state_dict | sharded_state_dict
+  save_interval: 500
+  max_checkpoints: 3
+
+data:
+  dataset: synthetic               # synthetic | huggingface
+  num_samples: 10000
+  num_workers: 4
